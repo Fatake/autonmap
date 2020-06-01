@@ -61,13 +61,19 @@ echo "[+] Creating directories for output as $(pwd)/$DIRECTORY/"
 mkdir "$DIRECTORY"
 
 #Host discovery on top ports
-ALIVEHOSTS="nmap -sn -PE -PP -PM -PS80,443,22,3389,1723,8080,3306,135,53,143,139,445,110,25,21,23,5432,27017,1521 -PU139,53,67,135,445,1434,138,123,137,161,631 $TARGET -oA $DIRECTORY/autonmap_HostDiscovery_$NAME";
+# Ports syn
+PORTS = "80,443,22,3389,1723,8080,3306,135,53,143,139,445,110,25,21,23,5432,27017,1521"
+# Ports UDP
+PORTU= "139,53,67,135,445,1434,138,123,137,161,631"
+ALIVEHOSTS="nmap -sn -PE -PP -PM -PS$PORTS -PU$PORTU $TARGET -oA $DIRECTORY/autonmap_HostDiscovery_$NAME";
 echo "[+] ================================================================================";
 echo "[+] ==========================  H O S T    D I S C O V E R Y  ======================";
 echo "[+] ================================================================================";
 echo "[#] > "$ALIVEHOSTS;
 echo "[+] ================================================================================";
 eval $ALIVEHOSTS
+
+
 #Extract list of alive hosts
 cat "$DIRECTORY"/autonmap_HostDiscovery_"$NAME".gnmap | grep "Status: Up" | cut -d " " -f 2 > "$DIRECTORY"/il_alive_"$NAME".lst;
 
