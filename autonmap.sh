@@ -88,10 +88,14 @@ script_version_scan(){
 }
 
 generate_report(){
-  NMAP_BOOTSTRAP_PATH="/opt/autonmap/nmap-bootstrap.xsl/nmap-bootstrap.xsl"
+  NMAP_BOOTSTRAP_PATH="$(pwd)/nmap-bootstrap.xsl/nmap-bootstrap.xsl"
 
   if [ ! -e "$NMAP_BOOTSTRAP_PATH" ]; then
-    NMAP_BOOTSTRAP_PATH="$(pwd)/nmap-bootstrap.xsl/nmap-bootstrap.xsl"
+    NMAP_BOOTSTRAP_PATH="/opt/autonmap/nmap-bootstrap.xsl/nmap-bootstrap.xsl"
+  fi
+
+  if [ ! -e "$NMAP_BOOTSTRAP_PATH" ]; then
+    NMAP_BOOTSTRAP_PATH="/opt/nmap-bootstrap-xsl/nmap-bootstrap.xsl"
   fi
 
   REPORT="xsltproc -o ${SAVE_DIR}/${NAME}_report.html ${NMAP_BOOTSTRAP_PATH} ${SAVE_DIR}/${NAME}_service_scan.xml"
@@ -101,8 +105,8 @@ generate_report(){
   echo -e "command# ${greenColour}${REPORT}${endColour}";
   echo -e "================================================================================\n";
   if [ ! -e "$NMAP_BOOTSTRAP_PATH" ]; then
-    log_error "Failed to generate report with xsltproc, ${redColour}nmap-bootstrap.xsl${endColour} file was not found."
-    return
+    COMMAND="git clone --quiet https://github.com/honze-net/nmap-bootstrap-xsl.git /opt/nmap-bootstrap-xsl"
+    run_cmd "$COMMAND"
   fi
   log_ok "Report Generated Successfully"
   eval $REPORT
