@@ -21,7 +21,7 @@ host_discover(){
   UDPPORTS="139,53,67,135,445,1434,138,123,137,161,631"
   FIREWALLEVASION="--randomize-hosts"
 
-  FLAGS="-sn -PE -PP -PM -PA${TCPPORTS} -PS${TCPPORTS} -PO -PU${UDPPORTS} ${FIREWALLEVASION}"
+  FLAGS="-sn -PE -PP -PM -PS${TCPPORTS}-PA${TCPPORTS} -PU${UDPPORTS} -PO ${FIREWALLEVASION}"
 
   OUT_FILE="-oA ${SAVE_DIR}/${NAME}_alive_hosts"
 
@@ -104,6 +104,7 @@ generate_report(){
     log_error "Failed to generate report with xsltproc, ${redColour}nmap-bootstrap.xsl${endColour} file was not found."
     return
   fi
+  log_ok "Report Generated Successfully"
   eval $REPORT
 }
 
