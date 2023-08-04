@@ -11,6 +11,7 @@ usage(){
   echo -e "\t-h \tDisplays this message of use"
   echo -e "\t-o \tFile name to use to save scan related files"
   echo -e "\t-t \tTarget IP,CIDR or pass an input file as \"-iL file.lst\" to scan more complex ranges\n\n";
+  echo -e "\t-d \tPerform Host Discovery only"
   log_warning "This script is only a wrapper for bash evals, so, use parameters with care!"
 }
 
@@ -113,7 +114,7 @@ generate_report(){
 }
 
 # Check opts
-while getopts ":t:o:h" opt; do
+while getopts ":t:o:hd" opt; do
   case $opt in
     # help
     h)
@@ -131,6 +132,12 @@ while getopts ":t:o:h" opt; do
     o)
       NAME="$OPTARG"
       f_name=true
+      ;;
+
+    d)
+      log_info "Host Discovery only"
+      echo -e "${redColour}================================================================================${endColour}";
+      f_hostdiscoveronly=true
       ;;
 
     \?)
@@ -167,12 +174,18 @@ log_info "Output Files:\t $NAME"
 
 SAVE_DIR="autonmap_${NAME}"
 if [ ! -d "${SAVE_DIR}" ]; then
-  echo "================================================================================";
   log_info "Creating directory: ${SAVE_DIR}...\n"
   /bin/bash -c "mkdir ${SAVE_DIR}/" 2>/dev/null
   /bin/bash -c  "chown -R 1000:1000 ${SAVE_DIR}/" 2>/dev/null
 fi
 
+if [ "$f_hostdiscoveronly" = "true" ] ; then
+  host_discover
+  /bin/bash -c  "chown -R 1000:1000 ${SAVE_DIR}/" 2>/dev/null
+  echo ""
+  log_ok "D O N E \n"
+  exit 1
+fi
 host_discover
 
 syn_port_discover
