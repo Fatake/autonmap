@@ -110,9 +110,6 @@ script_version_scan(){
   if [ -z "${TCPPORTS}" ]; then
     TCPPORTS="22,80,443"
   fi
-  if [ -z "${UDPPORTS}" ]; then
-    UDPPORTS="53"
-  fi
 
   NMAP_COMMAND="nmap ${FLAGS} -p T:${TCPPORTS},U:${UDPPORTS} ${FIREWALLEVASION} ${OUT_FILE} ${INPUT_FILE}";
   echo -e "\n\n================================================================================";
