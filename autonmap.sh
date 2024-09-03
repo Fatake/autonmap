@@ -50,15 +50,30 @@ usage(){
   log_warning "This script is only a wrapper for bash evals, so, use parameters with care!"
 }
 
-host_discover(){
+# nmap2urllist nmap.gnmap output.lts
+nmap2urllist() {
+  local input_file="$1"
+  local output_file="$2"
+  > "$output_file"
 
+  grep "Ports:" "$input_file" | grep -E "80/open|443/open" | while read -r line; do
+      host=$(echo "$line" | awk '{print $2}')
+      if echo "$line" | grep -q "80/open"; then
+          echo "http://$host" >> "$output_file"
+      fi
+      if echo "$line" | grep -q "443/open"; then
+          echo "https://$host" >> "$output_file"
+      fi
+  done
+}
+
+host_discover(){
   #Host discovery on top TCP and UDP ports
   TCPPORTS="80,443,22,3389,1723,8080,3306,135,53,143,139,445,110,25,21,23,5432,27017,1521"
   UDPPORTS="139,53,67,135,445,1434,138,123,137,161,631"
   FIREWALLEVASION="--randomize-hosts"
 
   FLAGS="-sn -PE -PP -PM -PS${TCPPORTS} -PA${TCPPORTS} -PU${UDPPORTS} -PO ${FIREWALLEVASION}"
-
   OUT_FILE="-oA ${SAVE_DIR}/${NAME}_alive_hosts"
 
   NMAP_COMMAND="nmap ${FLAGS} ${OUT_FILE} ${TARGET} ";
@@ -148,25 +163,22 @@ generate_report(){
 # Check opts
 while getopts ":t:o:hd" opt; do
   case $opt in
-    # help
-    h)
+    h) # Help
       usage
       exit 1
       ;;
 
-    # Target
-    t)
+    t) # Target
       TARGET="$OPTARG"
       f_target=true
       ;;
 
-    # output file
-    o)
+    o) # Output file
       NAME="$OPTARG"
       f_name=true
       ;;
 
-    d)
+    d) # Discovery only
       log_info "Host Discovery only"
       echo -e "${redColour}================================================================================${endColour}";
       f_hostdiscoveronly=true
@@ -228,3 +240,4 @@ generate_report
 
 /bin/bash -c  "chown -R 1000:1000 ${SAVE_DIR}/" 2>/dev/null
 log_ok "D O N E \n"
+echo "${greenColour}================================================================================${endColour}\n";
